@@ -1,10 +1,11 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, useContext } from 'react';
 import StoreStatus from './StoreStatus';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Avatar from '@material-ui/core/Avatar';
 import { useParams } from 'react-router-dom';
 import Divider from '@material-ui/core/Divider';
+import { UserContext } from './App';
 
 const useStyles = makeStyles(theme => ({
     medium: {
@@ -28,6 +29,8 @@ export default ({ items }) => {
     let { goods_code } = useParams();
     const [item, setItem] = useState({});
 
+    const user = useContext(UserContext);
+
     useEffect(() => {
         items
             .filter(item => item.goodsCode === goods_code)
@@ -41,15 +44,16 @@ export default ({ items }) => {
                 };
                 setItem(tmpItem);
             });
+
         window.scrollTo(0, 0);
     }, []);
     return (
         <Fragment>
             <Box>
-                <StoreStatus displayImage={"http://k.kakaocdn.net/dn/Mwvp3/btqy5S8Fpd7/quc7e5AgtoNAIHpaJUBLKK/profile_640x640s.jpg"} displayName={"yskim"} cash={5000} />
+                <StoreStatus displayImage={user.displayImage} displayName={user.displayName} cash={user.cash} />
                 <Box>
                     <Box height={""} display="flex" alignItems="center">
-                        <Box px={4} px={2}>
+                        <Box px={4}>
                             <Avatar src={item.goodsImgS} className={classes.medium} variant="square" />
                         </Box>
                         <Box pr={4}>
@@ -65,9 +69,9 @@ export default ({ items }) => {
                     <Box py={3}>
                         <Box display="flex" px={4} py={0} justifyContent="space-between">
                             <Box>총 보유 캐시</Box>
-                            <Box>5000캐시</Box>
+                            <Box>{user.cash}캐시</Box>
                         </Box>
-                        <Box display="flex" display="flex" px={4} py={0} justifyContent="space-between">
+                        <Box display="flex" px={4} py={0} justifyContent="space-between">
                             <Box>구매 캐시</Box>
                             <Box>{item.realPrice}캐시</Box>
                         </Box>
@@ -75,7 +79,7 @@ export default ({ items }) => {
                     <Divider className={classes.divider} />
                     <Box display="flex" py={3} px={4} justifyContent="space-between">
                         <Box>캐시 잔액</Box>
-                        <Box color="#72B4B4">{5000 - parseInt(item.realPrice)}캐시</Box>
+                        <Box color="#72B4B4">{user.cash - parseInt(item.realPrice)}캐시</Box>
                     </Box>
                     <Divider className={classes.divider} />
                     <Box py={5}>
