@@ -152,7 +152,7 @@ export default ({ items }) => {
     return (
         <Fragment>
             <Box>
-                <StoreStatus displayImage={user.displayImage} displayName={user.displayName} cash={user.cash} />
+                <StoreStatus displayImage={user.displayImage} displayName={user.displayName} cash={user.cash} uid={user.uid}/>
                 <Box>
                     <Box height={""} display="flex" alignItems="center">
                         <Box px={4}>

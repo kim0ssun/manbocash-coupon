@@ -1,12 +1,15 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import FavoriteIcon from '@material-ui/icons/Favorite'
 
 
-export default function ({ displayImage, displayName, cash }) {
+export default function ({ displayImage, displayName, cash, uid }) {
+
+    let history = useHistory();
+
     return (
         <Box
             display="flex"
@@ -18,7 +21,7 @@ export default function ({ displayImage, displayName, cash }) {
             justifyContent="space-between"
         >
             <Box display="flex" alignItems="center">
-                <Avatar src={displayImage} alt="" />
+                <Avatar src={displayImage} alt="" onClick={() => history.push(`/${uid}`)}/>
                 <Box px={1}><Typography fontSize={11} >{displayName}</Typography></Box>
             </Box>
             <Link to="/api/couponbox" style={{ "textDecoration": "none" }}>

@@ -122,7 +122,7 @@ export default ({ totalItems, brand, isRequest, items, brandsImg, handleBrand, h
 
     return (
         <Fragment>
-            <StoreStatus displayImage={displayImage} displayName={displayName} cash={cash} />
+            <StoreStatus displayImage={displayImage} displayName={displayName} cash={cash} uid={uid}/>
 
             <SearchBar
                 placeholder="검색"

@@ -89,6 +89,7 @@ export default ({ items }) => {
                 displayImage={user.displayImage}
                 displayName={user.displayName}
                 cash={user.cash}
+                uid={user.uid}
             />
             { false
                 ?
