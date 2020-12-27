@@ -5,10 +5,18 @@ import { useParams, useHistory, useLocation } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import Avatar from '@material-ui/core/Avatar';
 import { UserContext } from './App';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles(theme => ({
     root: {
 
+    },
+    loading: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100vw',
+        height: '100vh',
     },
     small: {
         width: theme.spacing(4),
@@ -20,6 +28,11 @@ const useStyles = makeStyles(theme => ({
         height: theme.spacing(50),
     },
     btn_buy: {
+        backgroundColor: "#72B4B4",
+        height: "50px",
+        textAlign: "center",
+        color: "white",
+        lineHeight: "50px",
         '&:hover': {
             cursor: 'pointer',
             background: '#175656'
@@ -39,6 +52,7 @@ export default ({ items }) => {
     const [goodsName, setGoodsName] = useState("");
     const [brandName, setBrandName] = useState("");
     const [brandIconImg, setBrandIconImg] = useState("");
+    const [category1Seq, setCategory1Seq] = useState(1);
     const classes = useStyles();
 
     const user = useContext(UserContext);
@@ -54,6 +68,7 @@ export default ({ items }) => {
                 setBrandName(item.brandName);
                 setBrandIconImg(item.brandIconImg);
                 setGoodsName(item.goodsName);
+                setCategory1Seq(item.category1Seq);
                 setLoad(true);
             });
 
@@ -62,7 +77,9 @@ export default ({ items }) => {
     }, []);
 
     const handleBuyClick = (event) => {
-        history.push(`/goods/sale/${goodsCode}`);
+        if(user.cash >= realPrice){
+            history.push(`/goods/sale/${goodsCode}`);
+        }
     };
 
     return (
@@ -73,43 +90,47 @@ export default ({ items }) => {
                 displayName={user.displayName}
                 cash={user.cash}
             />
-            {!isLoad ? <Box>loading....</Box> : (<Box pb={4} >
-                <Box textAlign="center" p={2} m={"auto"} display="flex" justifyContent="center" alignItems="center">
-                    <Avatar src={goodsImgB} className={classes.large} variant='square' />
-                </Box>
-                <Box textAlign="center" p={2}>
-                    <Box>{goodsName}</Box>
-                    <Box display="flex" alignItems="center" justifyContent="center">
-                        <Box color="gray" fontSize={14}>{brandName}</Box>
-                        <Avatar src={brandIconImg} className={classes.small} />
+            { false
+                ?
+                <Box clasName={classes.loading}><CircularProgress /></Box>
+                :
+                (<Box pb={4} >
+                    <Box textAlign="center" p={2} m={"auto"} display="flex" justifyContent="center" alignItems="center">
+                        <Avatar src={goodsImgB} className={classes.large} variant='square' />
                     </Box>
-                    <Box color="#72B4B4">{realPrice}캐시</Box>
-                </Box>
-                <Box
-                    bgcolor="#F2F2F2"
-                    fontSize="12"
-                    textAlign="center"
-                    height="50px"
-                    lineHeight="50px">상세정보({goodsCode})</Box>
-                <Box px={4} py={2} fontSize="13px" >
+                    <Box textAlign="center" p={2}>
+                        <Box>{goodsName}</Box>
+                        <Box display="flex" alignItems="center" justifyContent="center">
+                            <Box color="gray" fontSize={14}>{brandName}</Box>
+                            <Avatar src={brandIconImg} className={classes.small} />
+                        </Box>
+                        <Box color="#72B4B4">{realPrice}캐시</Box>
+                    </Box>
+                    <Box
+                        bgcolor="#F2F2F2"
+                        fontSize="12"
+                        textAlign="center"
+                        height="50px"
+                        lineHeight="50px">상세정보({goodsCode})</Box>
+                    <Box px={4} py={2} fontSize="13px" >
 
-                    {content.split('\n').map(line => {
-                        return (<span>{line}<br /></span>)
-                    })}
+                        {content.split('\n').map(line => {
+                            return (<span>{line}<br /></span>)
+                        })}
 
-                </Box>
-                <Box
-                    className={classes.btn_buy}
-                    bgcolor="#72B4B4"
-                    height="50px"
-                    textAlign="center"
-                    color="white"
-                    lineHeight="50px"
-                    onClick={(event) => handleBuyClick(event)}
-                >
-                    구매하기
-                </Box>
-            </Box>)}
+                    </Box>
+                    {
+                        user.cash >= realPrice ?
+                            <Box
+                                className={classes.btn_buy}
+                                disabled={true}
+                                onClick={(event) => handleBuyClick(event)}
+                            >
+                                구매하기
+                    </Box>
+                            : ""
+                    }
+                </Box>)}
         </Fragment>
     )
 }

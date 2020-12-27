@@ -153,11 +153,11 @@ fs.writeFileSync(__dirname+'/uploadProducts.json', JSON.stringify({
         console.log('done!!!!', res);
     })
     .catch(err => console.log('err : ', err));
-*/  
+*/
 /* ---------------------------------------------------------- */
 /*                상품 1품목당 1개 다큐먼트로 업로드                  */
 /* ---------------------------------------------------------- */
-let count = 0;
+/*let count = 0;
 uploadProducts.data.forEach(product => {
     db.collection('productsByOne').doc().set(product)
         .then(res => {
@@ -166,3 +166,19 @@ uploadProducts.data.forEach(product => {
         .catch(err => console.log('error: ',err));
 })
 console.log('Done~~~~~');
+*/
+// let byWhat = 'affiliate';
+let byWhat = 'brandName';
+const statistics = uploadProducts.data.reduce((acc, cur, i) => {
+    if (acc[cur[byWhat]]) {
+        // acc[cur[byWhat]] += 1;
+    } else {
+        acc[cur[byWhat]] = cur['brandIconImg'];
+    }
+    return acc;
+}, {});
+// Object.keys(statistics).forEach((value, index) => {
+//     console.log(index, value,'=>' ,statistics[value]);
+// })
+console.log(statistics);
+// console.log(Object.keys(statistics).length);

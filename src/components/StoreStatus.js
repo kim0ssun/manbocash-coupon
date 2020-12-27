@@ -23,7 +23,6 @@ export default function ({ displayImage, displayName, cash }) {
             </Box>
             <Link to="/api/couponbox" style={{ "textDecoration": "none" }}>
                 <Box
-
                     fontSize={13}
                     padding={0.5}
                     width={70}
@@ -44,7 +43,7 @@ export default function ({ displayImage, displayName, cash }) {
                     px={1}
                 >
                     <FavoriteIcon style={{ color: '#8177E6', fontSize: '14px' }} />
-                    <Box fontSize={13} color={'#72B4B4'}>{cash}캐시</Box>
+                    <Box fontSize={13} color={'#72B4B4'}>{cash}</Box>
                 </Box>
             </Box>
         </Box>

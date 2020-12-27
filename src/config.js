@@ -1,3 +1,3 @@
-export const AUTH_CODE = 'REAL578e05660eaf4a8b8182a66ff0ea98c9';
-export const AUTH_TOKEN = 'UkyROHokNAPknVoGTsYjEw==';
-export const USER_ID = 'cashmanbo@gmail.com';
+export const AUTH_CODE = 'REAL072ec86355a74a9a9cd72d1a23086fa9';
+export const AUTH_TOKEN = '6fiPBokNFsYEGTYCAWzQ3Q==';
+export const USER_ID = 'colorworlds@naver.com';

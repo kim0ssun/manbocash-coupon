@@ -6,17 +6,23 @@ import ListItem from '@material-ui/core/ListItem';
 import Avatar from '@material-ui/core/Avatar';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
-import { Box } from '@material-ui/core';
+import { Box, Divider } from '@material-ui/core';
 import { useHistory, useParams } from 'react-router-dom';
 import firebase from './firebase';
 import subscribe from "subscribe-event";
 import * as _ from 'underscore';
+import SingleLineCategory from './SingleLineCategory';
+import SearchBar from "material-ui-search-bar";
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+import { IndeterminateCheckBox } from '@material-ui/icons';
+import Paper from '@material-ui/core/Paper'
 
 const db = firebase.firestore();
 const useStyles = makeStyles(theme => ({
     list: {
         background: '#f2f2f2',
-        padding: '0 23px 15px',
+        padding: '8px 23px 15px',
         height: '100%'
     },
     listItem: {
@@ -35,117 +41,145 @@ const useStyles = makeStyles(theme => ({
     },
     itemDesc: {
         paddingLeft: "15px",
+    },
+    brands: {
+        padding: '5px 10px',
+        background: '#eaeaea',
+    },
+    tile: {
+        
+        '&:hover ': {
+            cursor: 'pointer',
+            border: '1px solid #ccc',
+        },
+        padding: '10px',
+    },
+    active: {
+        border: '2px solid red',
+    },
+    search: {
+        padding: '0 20px',
+        borderRadius: '10px'
     }
-}));
+}))
 
-export default ({ items, handleUser, handleItems }) => {
+export default ({ totalItems, brand, isRequest, items, brandsImg, handleBrand, handleRequest, handleUser, handleItems }) => {
     let history = useHistory();
     const classes = useStyles();
     const { uid } = useParams();
 
-    const [page, setPage] = useState(1);
-    const [isBottom, setIsBottom] = useState(false);
-
     const [displayName, setDisplayName] = useState('');
     const [displayImage, setDisplayImage] = useState('');
     const [cash, setCash] = useState(0);
+
+    const [searchText, setSearchText] = useState('');
 
     const handleListItemClick = (event, goodsCode) => {
         console.log('goodsCode: ' + goodsCode);
         history.push(`/goods/${goodsCode}`);
     }
 
-    // 스크롤 핸들링.
-    const scrollHandler = _.throttle(() => {
-        let { innerHeight } = window;
-        let { scrollHeight } = document.body;
-        // IE에서는 document.documentElement 를 사용.
-        let scrollTop =
-            (document.documentElement && document.documentElement.scrollTop) ||
-            document.body.scrollTop;
-        // 스크롤시, 브라우저의 가장 밑에서 페이지수 증가.
-
-        if (innerHeight + scrollTop === scrollHeight && isBottom === false) {
-
-            setPage(prev => prev + 1);
-            setIsBottom(true);
-
-        }
-    }, 300);
-
     useEffect(() => {
-        const unsubscribe = subscribe(window, "scroll", scrollHandler);
-        return () => {
-            unsubscribe();
-        };
-    }, []);
-
-    // 페이징 처리
-    useEffect(() => {
-        const tmpItems = [];
-        db.collection('productsByOne').orderBy('realPrice').limit(10 * page).get()
-            .then(snapshot => {
-                snapshot.forEach(el => {
-                    tmpItems.push(el.data());
-                });
-                handleItems(tmpItems);
-                setIsBottom(false);
-
-            });
-    }, [page]);
-
-    useEffect(() => {
+        
+        //handleItems(totalItems);
         db.collection('members').doc(uid)
             .onSnapshot(doc => {
-                setDisplayImage(doc.data().photoUrl);
-                setDisplayName(doc.data().nickName);
-                setCash(Number(doc.data().cash));
-                handleUser({
+                setDisplayImage(doc.data().photourl);
+                setDisplayName(doc.data().nickname);
+                setCash(Number(doc.data().cash || 0));
+                let user = {
                     'uid': uid,
-                    'displayImage': doc.data().photoUrl,
-                    'displayName': doc.data().nickName,
-                    'cash': Number(doc.data().cash),
-                });
+                    'displayImage': doc.data().photourl,
+                    'displayName': doc.data().nickname,
+                    'cash': Number(doc.data().cash || 0),
+                };
+                console.log('user: ' + JSON.stringify(user));
+                handleUser(user);
             })
 
         // 뒤로가기를 눌러 돌아왔을 때 예전 위치로 찾아가려는 로직을 넣어야..(미해결)
         window.scrollTo(0, 0);
+       
     }, []);
+
+    const handleClickBrand = ({ brandName }) => {
+        handleItems(totalItems);
+        handleRequest(false);
+        handleBrand(brandName);
+    };
+
+    const handleRequestSearch = () => {
+        //서치텍스트를 포함한 상품을 전부 찾는다
+        console.log('handleRequestSearch');
+        console.log(searchText);
+        console.log(totalItems);
+        console.log(totalItems[0].srchKeyword);
+        console.log(totalItems.filter(item => item.srchKeyword.toLowerCase().indexOf(searchText.toLowerCase()) > 0));
+        const filteredItems = totalItems.filter(item => item.srchKeyword.toLowerCase().indexOf(searchText.toLowerCase()) > -1);
+        handleRequest(true);
+        handleItems(filteredItems);
+    };
 
     return (
         <Fragment>
             <StoreStatus displayImage={displayImage} displayName={displayName} cash={cash} />
+
+            <SearchBar
+                placeholder="검색"
+                value={searchText}
+                onChange={(newValue) => setSearchText(newValue)}
+                onRequestSearch={handleRequestSearch}
+            />
+
+            <GridList cellHeight={70} cols={6} spacing={5} className={classes.brands}>
+                {brandsImg
+                    .map(item => {
+                        return (
+                            <GridListTile className={classes.tile} onClick={() => handleClickBrand(item)}>
+                                <img src={item.brandIconImg} alt={item.brandName} />
+                            </GridListTile>
+                        )
+                    })}
+            </GridList>
             <List className={classes.list} component="nav">
                 {
-                    items.map(({ goodsImgS, goodsCode, goodsName, brandName, realPrice }) => {
-                        return (
-                            <ListItem className={classes.listItem}
-                                button
-                                onClick={event => handleListItemClick(event, goodsCode)}
-                                key={goodsCode}
-                            >
-                                <ListItemAvatar >
-                                    <Avatar src={goodsImgS}
-                                        className={classes.large}
-                                        variant="square"
-                                        alt={goodsCode}
-                                    />
-                                </ListItemAvatar>
-                                <ListItemText
-                                    className={classes.itemDesc}
-                                    primary={goodsName}
-                                    secondary={
-                                        <Fragment >
-                                            <Box className={classes.itemDesc}>
-                                                <Box fontSize={14} height={14}>{brandName}</Box>
-                                                <Box fontSize={16} height={14} color={'#72B4B4'} textAlign="right"
-                                                >{realPrice}캐시</Box>
-                                            </Box>
-                                        </Fragment>
-                                    } />
-                            </ListItem>
-                        )
-                    })
+                    items
+                        .filter(item => {
+                            if (isRequest) {
+                                return true
+                            } else {
+                                return item.brandName === brand
+                            };
+                        })
+                        .map(({ goodsImgS, goodsCode, goodsName, brandName, realPrice, category1Seq, category2Seq }) => {
+                            return (
+                                <ListItem className={classes.listItem}
+                                    button
+                                    onClick={event => handleListItemClick(event, goodsCode)}
+                                    key={goodsCode}
+                                >
+                                    <ListItemAvatar >
+                                        <Avatar src={goodsImgS}
+                                            className={classes.large}
+                                            variant="square"
+                                            alt={goodsCode}
+                                        />
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                        className={classes.itemDesc}
+                                        primary={goodsName}
+                                        secondary={
+                                            <Fragment >
+                                                <Box className={classes.itemDesc}>
+                                                    <Box fontSize={14} height={14}>{brandName}({category1Seq}/{category2Seq})</Box>
+                                                    <Box fontSize={16} height={14} color={'#72B4B4'} textAlign="right"
+                                                    >{realPrice}캐시</Box>
+                                                </Box>
+                                            </Fragment>
+                                        } />
+                                </ListItem>
+                            )
+                        })
                 }
             </List>
         </Fragment>
