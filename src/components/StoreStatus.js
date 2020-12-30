@@ -10,6 +10,10 @@ export default function ({ displayImage, displayName, cash, uid }) {
 
     let history = useHistory();
 
+    const handleClick = () => {
+        history.push(`/${uid}`);
+    };
+
     return (
         <Box
             display="flex"
@@ -20,8 +24,8 @@ export default function ({ displayImage, displayName, cash, uid }) {
             alignItems="center"
             justifyContent="space-between"
         >
-            <Box display="flex" alignItems="center">
-                <Avatar src={displayImage} alt="" onClick={() => history.push(`/${uid}`)}/>
+            <Box display="flex" alignItems="center" onClick={handleClick}>
+                <Avatar src={displayImage} alt="" />
                 <Box px={1}><Typography fontSize={11} >{displayName}</Typography></Box>
             </Box>
             <Link to="/api/couponbox" style={{ "textDecoration": "none" }}>
